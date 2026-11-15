@@ -45,6 +45,13 @@ python LangTrack/make_figures.py LangTrack/runs LangTrack/figures
 The Korean (`ko`) and paraphrase (`en2`) conditions need the item files available on request. Runs used CPU, float32,
 an explicit empty system message, and transformers 5.x (EXAONE 4.0 is supported natively; no remote code).
 
+`build_items_en.py` was checked on 2026-11-15 against the item file used in the runs: all 90 speak and act texts match.
+
+## License
+
+Code in this repository: MIT (see `LICENSE`). The English prompt line in `run_probs.py` follows the WDCT authors'
+evaluation script. WDCT and WVS materials keep their own terms and are not included here.
+
 ## Citation
 
 If you use this, cite the report and WDCT:
