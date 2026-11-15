@@ -1,0 +1,167 @@
+direction_korea.txt  -- EXPLORATORY, defined after results were seen (2026-11-14). Not preregistered.
+Question: does asking in Korean (vs English) move each model's P(option A) toward the Korean public's
+share for option A, relative to the US public's share? Speak (stated-value) side only.
+
+== Choices ==
+p(cond) = mean of speak_pA_orig and speak_pA_swap (P of original option A, order-averaged).
+Public data: GlobalOpinionQA (HF Anthropic/llm_global_opinions), WVS-source rows only. goqa_idx indexes the
+  353-row WVS subset in file order (not the full 2556 rows; row 5 of the full file is an Orban item).
+  The pairs file has no goqa_question column, so the match was verified by reading the GOQA question tail
+  against master_label for every used item; token-overlap check is the 'ovl' column below.
+Option A of the model = 'Yes' for yes/no items; 'Freedom' for the two freedom-vs items.
+Collapse of GOQA options into A / B (Don't know, No answer, Missing/Other missing dropped, rest renormalised):
+  agree4        Agree strongly + Agree -> A ; Disagree + Strongly disagree -> B
+  agree_neither as agree4; 'Neither agree nor disagree' DROPPED (sensitivity: Neither -> B)
+  trust4        Trust completely + Trust somewhat -> A ; Do not trust very much / at all -> B
+  confidence4   A great deal + Quite a lot -> A ; Not very much + None at all -> B
+  gov_right4    Definitely/Probably should have the right -> A ; .../should not ... -> B
+  freedom_vs    Freedom -> A ; Equality or Security -> B
+  agree10       1-10 (10 = completely agree): 6-10 -> A ; 1-5 -> B
+  justif10      1-10 (10 = always justifiable; model A = 'Yes, justified'): 6-10 -> A ; 1-5 -> B
+                (sensitivity: 2-10 -> A, 1 'Never justifiable' -> B)
+  goodway4      Very good + Fairly good -> A ; Fairly bad + Very bad -> B  (AMBIGUOUS, excluded in primary)
+KR_A, US_A = South Korea / United States share for A. g = KR_A - US_A. delta = p(ko) - p(en).
+(a) threshold |g| >= 0.05 and |delta| >= 0.05; 'toward' = sign(delta) == sign(g). Wilson 95% CI.
+(b) Spearman with average ranks; (b),(c) item bootstrap, 10000 resamples, numpy default_rng(0), percentile CI.
+(d) count of items with |p(ko) - KR_A| < |p(en) - KR_A|.
+
+== Items ==
+Run items: 90. With korea_dist == True: 36. All 36 also have a US distribution.
+Excluded: 2
+  wav_92: ambiguous mapping: speak_q asks 'a VERY good way?' but WVS scale is very/fairly good/bad
+  wav_93: ambiguous mapping: speak_q asks 'a VERY good way?' but WVS scale is very/fairly good/bad
+Used: n = 34
+By type: agree10=4, agree4=7, agree_neither=7, confidence4=3, freedom_vs=2, gov_right4=2, justif10=5, trust4=4
+Token-overlap check (master_label vs GOQA question tail) < 0.5: none
+
+== Qwen2.5-1.5B-Instruct: item table ==
+id        mq type           ovl   KR_A   US_A       g   p_en   p_ko   delta  toward?
+wav_1     28 agree4        1.00  0.647  0.208  +0.439  0.038  0.708  +0.670  yes
+wav_2     29 agree4        1.00  0.519  0.165  +0.355  0.046  0.798  +0.751  yes
+wav_3     30 agree4        1.00  0.337  0.099  +0.238  0.010  0.438  +0.427  yes
+wav_4     31 agree4        1.00  0.479  0.127  +0.352  0.025  0.379  +0.355  yes
+wav_5     32 agree4        1.00  0.497  0.703  -0.206  0.534  0.111  -0.423  yes
+wav_6     33 agree_neither 1.00  0.728  0.063  +0.665  0.016  0.837  +0.821  yes
+wav_7     34 agree_neither 1.00  0.944  0.596  +0.348  0.048  0.519  +0.470  yes
+wav_9     36 agree_neither 1.00  0.362  0.761  -0.399  0.473  0.569  +0.096  no
+wav_10    37 agree_neither 0.83  0.803  0.155  +0.648  0.076  0.647  +0.571  yes
+wav_12    39 agree_neither 1.00  0.928  0.637  +0.291  0.424  0.680  +0.256  yes
+wav_13    40 agree_neither 1.00  0.886  0.810  +0.076  0.983  0.911  -0.073  no
+wav_14    41 agree_neither 1.00  0.776  0.382  +0.394  0.471  0.132  -0.339  no
+wav_21    60 trust4        1.00  0.814  0.902  -0.088  0.972  0.907  -0.065  yes
+wav_22    61 trust4        1.00  0.175  0.397  -0.222  0.927  0.805  -0.122  yes
+wav_23    62 trust4        1.00  0.260  0.749  -0.490  0.949  0.736  -0.213  yes
+wav_24    63 trust4        1.00  0.191  0.741  -0.550  0.958  0.223  -0.735  yes
+wav_45    84 confidence4   1.00  0.670  0.297  +0.373  0.986  0.767  -0.219  no
+wav_47    86 confidence4   1.00  0.636  0.463  +0.173  0.981  0.390  -0.591  no
+wav_49    88 confidence4   1.00  0.735  0.529  +0.206  0.989  0.927  -0.062  no
+wav_58   149 freedom_vs    1.00  0.649  0.785  -0.136  0.821  0.644  -0.177  yes
+wav_59   150 freedom_vs    1.00  0.429  0.711  -0.282  0.740  0.676  -0.064  yes
+wav_60   158 agree10       1.00  0.891  0.725  +0.166  0.998  0.995  -0.003  -
+wav_61   159 agree10       1.00  0.841  0.732  +0.109  0.999  0.991  -0.009  -
+wav_62   160 agree10       1.00  0.623  0.376  +0.247  0.221  0.592  +0.371  yes
+wav_63   162 agree10       1.00  0.511  0.259  +0.252  0.010  0.234  +0.224  yes
+wav_69   169 agree4        1.00  0.228  0.343  -0.115  0.012  0.006  -0.006  -
+wav_70   170 agree4        1.00  0.215  0.182  +0.033  0.006  0.621  +0.615  -
+wav_71   177 justif10      1.00  0.138  0.117  +0.021  0.184  0.111  -0.073  -
+wav_72   178 justif10      1.00  0.097  0.136  -0.039  0.160  0.076  -0.084  -
+wav_74   180 justif10      1.00  0.051  0.063  -0.012  0.031  0.029  -0.002  -
+wav_75   181 justif10      1.00  0.055  0.048  +0.007  0.016  0.030  +0.014  -
+wav_83   189 justif10      1.00  0.054  0.030  +0.024  0.041  0.008  -0.034  -
+wav_89   196 gov_right4    1.00  0.506  0.685  -0.179  0.095  0.677  +0.582  no
+wav_90   198 gov_right4    1.00  0.195  0.286  -0.090  0.103  0.756  +0.653  no
+  ('-' = below the |g| or |delta| threshold, not counted in (a))
+
+== EXAONE-4.0-1.2B: item table ==
+id        mq type           ovl   KR_A   US_A       g   p_en   p_ko   delta  toward?
+wav_1     28 agree4        1.00  0.647  0.208  +0.439  0.979  1.000  +0.021  -
+wav_2     29 agree4        1.00  0.519  0.165  +0.355  0.648  0.958  +0.310  yes
+wav_3     30 agree4        1.00  0.337  0.099  +0.238  0.445  0.712  +0.268  yes
+wav_4     31 agree4        1.00  0.479  0.127  +0.352  0.597  0.987  +0.390  yes
+wav_5     32 agree4        1.00  0.497  0.703  -0.206  0.952  0.890  -0.063  yes
+wav_6     33 agree_neither 1.00  0.728  0.063  +0.665  0.836  0.982  +0.145  yes
+wav_7     34 agree_neither 1.00  0.944  0.596  +0.348  0.537  0.112  -0.425  no
+wav_9     36 agree_neither 1.00  0.362  0.761  -0.399  0.842  0.994  +0.153  no
+wav_10    37 agree_neither 0.83  0.803  0.155  +0.648  0.998  1.000  +0.002  -
+wav_12    39 agree_neither 1.00  0.928  0.637  +0.291  0.233  0.031  -0.202  no
+wav_13    40 agree_neither 1.00  0.886  0.810  +0.076  1.000  1.000  +0.000  -
+wav_14    41 agree_neither 1.00  0.776  0.382  +0.394  0.895  0.847  -0.048  -
+wav_21    60 trust4        1.00  0.814  0.902  -0.088  0.997  0.823  -0.175  yes
+wav_22    61 trust4        1.00  0.175  0.397  -0.222  0.346  0.004  -0.342  yes
+wav_23    62 trust4        1.00  0.260  0.749  -0.490  0.922  0.084  -0.837  yes
+wav_24    63 trust4        1.00  0.191  0.741  -0.550  0.946  0.155  -0.790  yes
+wav_45    84 confidence4   1.00  0.670  0.297  +0.373  0.007  0.089  +0.082  yes
+wav_47    86 confidence4   1.00  0.636  0.463  +0.173  0.240  0.601  +0.360  yes
+wav_49    88 confidence4   1.00  0.735  0.529  +0.206  0.995  0.988  -0.006  -
+wav_58   149 freedom_vs    1.00  0.649  0.785  -0.136  0.689  0.578  -0.111  yes
+wav_59   150 freedom_vs    1.00  0.429  0.711  -0.282  0.812  0.049  -0.762  yes
+wav_60   158 agree10       1.00  0.891  0.725  +0.166  1.000  1.000  +0.000  -
+wav_61   159 agree10       1.00  0.841  0.732  +0.109  1.000  1.000  +0.000  -
+wav_62   160 agree10       1.00  0.623  0.376  +0.247  0.379  0.650  +0.271  yes
+wav_63   162 agree10       1.00  0.511  0.259  +0.252  0.007  0.004  -0.004  -
+wav_69   169 agree4        1.00  0.228  0.343  -0.115  0.000  0.000  +0.000  -
+wav_70   170 agree4        1.00  0.215  0.182  +0.033  0.079  0.040  -0.038  -
+wav_71   177 justif10      1.00  0.138  0.117  +0.021  0.814  0.011  -0.804  -
+wav_72   178 justif10      1.00  0.097  0.136  -0.039  0.898  0.032  -0.866  -
+wav_74   180 justif10      1.00  0.051  0.063  -0.012  0.225  0.011  -0.213  -
+wav_75   181 justif10      1.00  0.055  0.048  +0.007  0.000  0.002  +0.002  -
+wav_83   189 justif10      1.00  0.054  0.030  +0.024  0.001  0.001  +0.001  -
+wav_89   196 gov_right4    1.00  0.506  0.685  -0.179  0.566  0.904  +0.338  no
+wav_90   198 gov_right4    1.00  0.195  0.286  -0.090  0.542  0.436  -0.105  yes
+  ('-' = below the |g| or |delta| threshold, not counted in (a))
+
+g > 0 on 21/34 items (KR more option-A than US); |g| >= 0.05 on 28.
+
+== Qwen2.5-1.5B-Instruct: summary (primary) ==
+  n items = 34
+  (a) toward Korea, among |g|>=0.05 and |delta|>=0.05: 17/25 = 0.680, Wilson 95% CI [0.484, 0.828], chance 0.50, exact two-sided binomial p = 0.108
+  (b) Spearman(delta, g) = +0.445, item bootstrap 95% CI [+0.066, +0.752] (10000 resamples, seed 0, percentile)
+  (c) mean signed delta (drift toward option A / 'Yes') = +0.1054, bootstrap 95% CI [-0.0237, +0.2342]; delta>0 on 15/34 items
+  (d) p(ko) closer to KR_A than p(en) is: 26/34
+  sign(g) x sign(delta) over the (a) set (n=25); rows = g sign, cols = delta sign:
+     g>0 (KR more A)     delta>0:  10   delta<0:   5   toward: 10/15
+     g<0 (US more A)     delta>0:   3   delta<0:   7   toward: 7/10
+  Hedging check over the (a) set: delta points toward 0.5 (sign(delta) == sign(0.5 - p_en)) on 24/25.
+     toward-Korea & toward-0.5: 17 | toward-Korea only: 0 | toward-0.5 only: 7 | neither: 1
+     items toward-Korea but away from 0.5: []
+  Battery clustering: (a) items fall in 8 WVS batteries; majority toward Korea in 4, tie in 1: gender/jobs Q27-35 7/7; family Q36-38 1/2; work Q39-41 1/3; trust Q57-63 4/4; confidence Q64-89 0/3; freedom Q149-150 2/2; science Q158-163 2/2; gov rights Q196-198 0/2
+  Sensitivity (same statistics, one choice changed at a time):
+  Neither -> B: n=34 | (a) 17/24 toward = 0.71 [0.51,0.85] | (b) rho=+0.50 [+0.15,+0.78] | (c) mean d=+0.105 [-0.024,+0.234] | (d) closer 26/34
+  justif10 split 1 | 2-10: n=34 | (a) 17/27 toward = 0.63 [0.44,0.78] | (b) rho=+0.40 [+0.02,+0.72] | (c) mean d=+0.105 [-0.024,+0.234] | (d) closer 24/34
+  include wav_92/93 (very+fairly good -> A): n=36 | (a) 17/25 toward = 0.68 [0.48,0.83] | (b) rho=+0.44 [+0.08,+0.76] | (c) mean d=+0.102 [-0.022,+0.224] | (d) closer 28/36
+
+== EXAONE-4.0-1.2B: summary (primary) ==
+  n items = 34
+  (a) toward Korea, among |g|>=0.05 and |delta|>=0.05: 15/19 = 0.789, Wilson 95% CI [0.567, 0.915], chance 0.50, exact two-sided binomial p = 0.019
+  (b) Spearman(delta, g) = +0.472, item bootstrap 95% CI [+0.140, +0.727] (10000 resamples, seed 0, percentile)
+  (c) mean signed delta (drift toward option A / 'Yes') = -0.1015, bootstrap 95% CI [-0.2227, +0.0088]; delta>0 on 17/34 items
+  (d) p(ko) closer to KR_A than p(en) is: 18/34
+  sign(g) x sign(delta) over the (a) set (n=19); rows = g sign, cols = delta sign:
+     g>0 (KR more A)     delta>0:   7   delta<0:   2   toward: 7/9
+     g<0 (US more A)     delta>0:   2   delta<0:   8   toward: 8/10
+  Hedging check over the (a) set: delta points toward 0.5 (sign(delta) == sign(0.5 - p_en)) on 12/19.
+     toward-Korea & toward-0.5: 11 | toward-Korea only: 4 | toward-0.5 only: 1 | neither: 3
+     items toward-Korea but away from 0.5: ['wav_2', 'wav_4', 'wav_6', 'wav_22']
+  Battery clustering: (a) items fall in 8 WVS batteries; majority toward Korea in 5, tie in 1: gender/jobs Q27-35 5/6; family Q36-38 0/1; work Q39-41 0/1; trust Q57-63 4/4; confidence Q64-89 2/2; freedom Q149-150 2/2; science Q158-163 1/1; gov rights Q196-198 1/2
+  Sensitivity (same statistics, one choice changed at a time):
+  Neither -> B: n=34 | (a) 15/19 toward = 0.79 [0.57,0.91] | (b) rho=+0.49 [+0.16,+0.75] | (c) mean d=-0.101 [-0.223,+0.009] | (d) closer 18/34
+  justif10 split 1 | 2-10: n=34 | (a) 15/22 toward = 0.68 [0.47,0.84] | (b) rho=+0.37 [+0.03,+0.67] | (c) mean d=-0.101 [-0.223,+0.009] | (d) closer 15/34
+  include wav_92/93 (very+fairly good -> A): n=36 | (a) 16/20 toward = 0.80 [0.58,0.92] | (b) rho=+0.49 [+0.19,+0.74] | (c) mean d=-0.085 [-0.203,+0.026] | (d) closer 20/36
+
+== Fragility notes ==
+- Defined after results; small n; (a) uses only items above both thresholds.
+- A uniform drift toward 'Yes' in Korean looks like 'toward Korea' whenever g > 0 dominates;
+  read (a) with (c) and the sign(g) x sign(delta) table.
+- justif10: almost all public mass is at 1-3, so the 1-5|6-10 split makes KR_A and US_A tiny; the split choice
+  changes g materially (see sensitivity line).
+- The Korean public answered the official Korean WVS questionnaire, whose wording differs in meaning from the
+  English on some items (e.g. wav_90 'without their knowledge' vs official 'without consent'; Q235 official
+  'parliament and parties' vs 'parliament and elections'). The ko prompts partly follow the official Korean
+  (official wording where meaning matched, English-faithful where it did not, e.g. wav_92/93), so delta mixes
+  language with translation-meaning shift. On wav_90 the ko prompt and the KR public share '동의 없이'
+  while the en prompt says 'knowledge', so wording favours 'toward' there by construction.
+- Hedging: where p_en sits near 0 or 1, the only room for |delta| >= 0.05 is toward 0.5; if that direction
+  coincides with sign(g), 'toward Korea' cannot be told apart from 'less extreme in Korean' (see hedging check).
+- Items are not independent: they come in WVS batteries (see battery clustering line); the binomial p and
+  bootstrap CIs treat items as independent and so overstate precision.
+- Two-option collapse discards intensity; 'Neither' handling is a choice (see sensitivity).

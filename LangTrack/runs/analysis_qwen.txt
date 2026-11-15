@@ -1,0 +1,24 @@
+== full_ | conditions: en, en2, ko
+-- 0단계: order agreement (gate 60%), kappa reference, exclusions
+en  speak n= 90 excl=0 agree=0.756 PASS kappa=0.521
+en  act   n= 90 excl=0 agree=0.844 PASS kappa=0.688
+en2 speak n= 90 excl=0 agree=0.611 PASS kappa=0.303
+en2 act   n= 90 excl=0 agree=0.800 PASS kappa=0.601
+ko  speak n= 90 excl=0 agree=0.767 PASS kappa=0.537
+ko  act   n= 90 excl=0 agree=0.767 PASS kappa=0.526
+baseline en′ usable: True
+-- 0단계 prediction (KO lower than EN by ≥ 5pp on each side)
+EN−KO speak -0.011 act +0.078 → 틀림
+-- 이동 (|Δ| = |p̄ko − p̄en|, |Δ′| = |p̄en′ − p̄en|, c = |Δ| − |Δ′|)
+speak n=90 mean|Δ|=0.276 SD=0.203 IQR=0.303 mean|Δ′|=0.213 mean c=0.063 [0.004, 0.123]
+      3×3 axis = 움직임
+      flip_conf = 8/50
+act   n=90 mean|Δ|=0.209 SD=0.229 IQR=0.374 mean|Δ′|=0.137 mean c=0.072 [0.013, 0.129]
+      3×3 axis = 움직임
+      flip_conf = 7/60
+-- H2: mean(act c − speak c)
+n=90 corrected 0.009 [-0.075, 0.091] | uncorrected -0.067 [-0.127, -0.007]
+H2 → 행동 > 말 증거 없음 (gate pass)
+-- H1: Spearman(|Δ| speak, |Δ| act)
+n=90 r=0.174 [-0.042, 0.380]
+H1 → 연동 증거 없음
