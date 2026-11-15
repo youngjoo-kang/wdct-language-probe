@@ -5,7 +5,7 @@ Code and run outputs for the Apart Research AI x Epistemics Sprint (Track 1) rep
 A Pre-registered Word–Deed Probe in English and Korean* (November 2026).
 
 Two small open models (Qwen2.5-1.5B-Instruct, EXAONE-4.0-1.2B) answer 90 stated-value / scenario-choice
-pairs from the Word–Deed Consistency Test (WDCT) in English, in a meaning-preserving English paraphrase,
+pairs from the Words and Deeds Consistency Test (WDCT) in English, in a meaning-preserving English paraphrase,
 and in a reviewed Korean translation. Each item is asked in both option orders and scored by the
 next-token probability of "A" vs "B".
 
